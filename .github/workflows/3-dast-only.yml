@@ -16,6 +16,8 @@ jobs:
   dast:
     name: OWASP ZAP Scan (DAST)
     runs-on: ubuntu-latest
+    env:
+      ARTIFACT_NAME: "zapreport"
 
     steps:
       # Step 1: Checkout code
