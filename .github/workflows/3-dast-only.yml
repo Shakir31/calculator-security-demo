@@ -51,12 +51,16 @@ jobs:
 
       # Step 6: Run OWASP ZAP Baseline Scan
       - name: ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.13.0
-        with:
-          target: "http://localhost:5000"
-          rules_file_name: ".zap/rules.tsv"
-          cmd_options: "-a" # Include alpha rules
-          allow_issue_writing: false # Set to true to create GitHub issues
+        run: |
+          docker run -t ghcr.io/zaproxy/zaproxy:stable \
+            -cmd -autorun ~/.zap/baseline.aslan \
+            -cmd -config api.disablekey=true \
+            -cmd -config view.alerts.fields=Alert,Risk,Confidence,URL,Param,Attack,OtherInfo,Solution \
+            -cmd -baseline http://localhost:5000 \
+            -cmd -format json -o report_json.json \
+            -cmd -format html -o report_html.html \
+            -cmd -format markdown -o report_md.md \
+            -cmd -rules .zap/rules.tsv
 
       # Step 7: Run OWASP ZAP Full Scan (more thorough)
       - name: ZAP Full Scan
