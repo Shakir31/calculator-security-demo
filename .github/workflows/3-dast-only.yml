@@ -68,7 +68,7 @@ jobs:
       # Step 8: ZAP Full Scan
       - name: ZAP Full Scan
         if: success()
-        uses: zaproxy/action-full-scan@v10.0.0
+        uses: zaproxy/action-full-scan@v0.10.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
