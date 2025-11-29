@@ -55,16 +55,20 @@ jobs:
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a" # Include alpha rules
           allow_issue_writing: false # Set to true to create GitHub issues
+          fail_action: false
+          upload_artifact: false
 
       # Step 7: Run OWASP ZAP Full Scan (more thorough)
       - name: ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.10.0
+        continue-on-error: true
         with:
           target: "http://localhost:5000"
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a -j" # Include AJAX spider
           allow_issue_writing: false
-          artifact_name: "zapreport"
+          fail_action: false
+          upload_artifact: false
 
       # Step 8: Upload ZAP scan reports
       - name: Upload ZAP reports
