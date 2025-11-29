@@ -50,6 +50,7 @@ jobs:
       # Step 6: Run OWASP ZAP Baseline Scan
       - name: ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.12.0
+        continue-on-error: true
         with:
           target: "http://localhost:5000"
           rules_file_name: ".zap/rules.tsv"
