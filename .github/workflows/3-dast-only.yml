@@ -49,26 +49,21 @@ jobs:
 
       # Step 6: Run OWASP ZAP Baseline Scan
       - name: ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.13.0
         with:
           target: "http://localhost:5000"
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a" # Include alpha rules
           allow_issue_writing: false # Set to true to create GitHub issues
-          fail_action: false
-          upload_artifact: false
 
       # Step 7: Run OWASP ZAP Full Scan (more thorough)
       - name: ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.10.0
-        continue-on-error: true
         with:
           target: "http://localhost:5000"
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a -j" # Include AJAX spider
           allow_issue_writing: false
-          fail_action: false
-          upload_artifact: false
 
       # Step 8: Upload ZAP scan reports
       - name: Upload ZAP reports
