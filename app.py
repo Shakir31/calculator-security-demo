@@ -3,6 +3,13 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
+
 @app.route('/')
 def index():
     """Render the calculator homepage"""
@@ -37,4 +44,4 @@ def calculate():
 
 if __name__ == '__main__':
     # Note: debug=False in production
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)

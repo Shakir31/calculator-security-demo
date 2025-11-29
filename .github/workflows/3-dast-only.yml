@@ -64,6 +64,7 @@ jobs:
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a -j" # Include AJAX spider
           allow_issue_writing: false
+          artifact_name: "zapreport"
 
       # Step 8: Upload ZAP scan reports
       - name: Upload ZAP reports
