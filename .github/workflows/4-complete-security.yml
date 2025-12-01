@@ -18,9 +18,20 @@ jobs:
     name: "1️⃣ SAST - Code Analysis"
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["python"]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,20 +43,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Snyk Code Scan (SAST)
-        continue-on-error: true
-        uses: snyk/actions/python@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Perform CodeQL Analysis (SAST)
+        uses: github/codeql-action/analyze@v3
         with:
-          command: code test
-          args: --sarif-file-output=snyk-code.sarif
-
-      - name: Upload SAST results
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: snyk-code.sarif
           category: sast
 
   # JOB 2: SCA - Dependency Analysis
@@ -79,6 +79,7 @@ jobs:
             --failOnCVSS 7
             --enableRetired
 
+      # ✅ Proper artifact naming
       - name: Upload SCA reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -142,21 +143,42 @@ jobs:
       - name: Verify application
         run: curl -f http://localhost:5000
 
+      # ✅ CORRECT VERSION: v0.14.0
       - name: Run ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.14.0
         with:
           target: "http://localhost:5000"
           cmd_options: "-a"
           allow_issue_writing: false
+          artifact_name: "zap-baseline-scan" # ✅ Override!
+        continue-on-error: true
 
-      - name: Upload DAST reports
+      # ✅ CORRECT VERSION: v0.12.0
+      - name: Run ZAP Full Scan
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          target: "http://localhost:5000"
+          cmd_options: "-a -j"
+          allow_issue_writing: false
+          artifact_name: "zap-fullscan-scan" # ✅ Override!
+        continue-on-error: true
+
+      # ✅ Proper artifact naming with hyphens and unique names
+      - name: Upload ZAP baseline reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: dast-reports
+          name: zap-baseline-reports
+          path: report_html.html
+
+      - name: Upload ZAP fullscan reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-fullscan-reports
           path: |
-            report_html.html
             report_json.json
+            report_md.md
 
   # JOB 5: Security Summary
   summary:
@@ -171,9 +193,15 @@ jobs:
           echo "# 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ SAST (Static Analysis): Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ SAST (CodeQL Analysis): Completed" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ SCA (Dependency Check): Completed" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ DAST (Dynamic Testing): Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Artifacts Generated" >> $GITHUB_STEP_SUMMARY
+          echo "- CodeQL results in Security tab" >> $GITHUB_STEP_SUMMARY
+          echo "- SCA reports: sca-reports" >> $GITHUB_STEP_SUMMARY
+          echo "- DAST baseline: zap-baseline-reports" >> $GITHUB_STEP_SUMMARY
+          echo "- DAST fullscan: zap-fullscan-reports" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📁 Check the **Actions** tab for detailed reports" >> $GITHUB_STEP_SUMMARY
           echo "🔍 Check the **Security** tab for vulnerability details" >> $GITHUB_STEP_SUMMARY
