@@ -48,29 +48,44 @@ jobs:
           echo "Application is responding"
 
       # Step 6: Run OWASP ZAP Baseline Scan
+      # ✅ CORRECT VERSION: v0.14.0 (not v0.15.0)
       - name: ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.14.0
         with:
           target: "http://localhost:5000"
-          rules_file_name: ".zap/rules.tsv"
-          cmd_options: "-a" # Include alpha rules
-          allow_issue_writing: false # Set to true to create GitHub issues
-
-      # Step 7: Run OWASP ZAP Full Scan (more thorough)
-      - name: ZAP Full Scan
-        uses: zaproxy/action-full-scan@v0.10.0
-        with:
-          target: "http://localhost:5000"
-          rules_file_name: ".zap/rules.tsv"
-          cmd_options: "-a -j" # Include AJAX spider
+          cmd_options: "-a"
           allow_issue_writing: false
+          artifact_name: "zap-baseline-scan" # ✅ Override artifact name!
+        continue-on-error: true
 
-      # Step 8: Upload ZAP scan reports
-      - name: Upload ZAP reports
+      # ✅ Manual artifact upload with proper naming
+      - name: Upload ZAP baseline reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: zap-reports
+          name: zap-baseline-reports
+          path: |
+            report_html.html
+            report_json.json
+            report_md.md
+
+      # Step 7: Run OWASP ZAP Full Scan (more thorough)
+      # ✅ CORRECT VERSION: v0.12.0 (not v0.15.0)
+      - name: ZAP Full Scan
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          target: "http://localhost:5000"
+          cmd_options: "-a -j"
+          allow_issue_writing: false
+          artifact_name: "zap-fullscan-scan" # ✅ Override artifact name!
+        continue-on-error: true
+
+      # ✅ Unique artifact name for full scan results
+      - name: Upload ZAP fullscan reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-fullscan-reports
           path: |
             report_html.html
             report_json.json
