@@ -1,0 +1,10 @@
+| Code  | Issue                                         | Risk   | Affected URL                     | Why It Matters                                                                                             |
+| ----- | --------------------------------------------- | ------ | -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 10038 | Content Security Policy (CSP) Header Not Set  | Medium | http://localhost:5000 and assets | CSP helps prevent XSS and data injection by restricting which content sources are trusted on the page.     |
+| 10106 | HTTP Only Site                                | Medium | http://localhost:5000            | Site served only on HTTP risks interception; HTTPS encrypts traffic to protect data integrity and privacy. |
+| 90004 | Insufficient Site Isolation Against Spectre   | Low    | http://localhost:5000            | Missing Cross-Origin Resource Policy headers leaves site vulnerable to side-channel Spectre attacks.       |
+| 10063 | Permissions Policy Header Not Set             | Low    | http://localhost:5000 and assets | Permissions Policy controls browser features access, improving user privacy and security.                  |
+| 10036 | Server Leaks Version Info via "Server" Header | Low    | http://localhost:5000 and assets | Revealing server software version aids attackers in targeting known vulnerabilities.                       |
+| 10035 | Strict-Transport-Security Header Not Set      | Low    | Firefox CDN URL                  | HSTS enforces HTTPS usage, preventing downgrade attacks and cookie hijacking.                              |
+| 10096 | Timestamp Disclosure - Unix                   | Low    | Firefox CDN URL                  | Revealed timestamp may enable attackers to analyze system info or timing, minor info leak.                 |
+| 10021 | X-Content-Type-Options Header Missing         | Low    | Firefox CDN URL                  | Prevents MIME sniffing attacks where browsers interpret content as wrong type, causing exploits.           |
